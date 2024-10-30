@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Portfolio Website</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div id="header">
+        <div class="container">
+            <nav>
+                <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo">
+                <ul id="sidemenu">
+                    <li><a href="#header">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#portfolio">Portfolio</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                    <i class="fa-solid fa-xmark" onclick="closemenu()"></i>
+                </ul>
+                <i class="fa-solid fa-bars" onclick="openmenu()"></i>
+                
+                <button class="login-btn">
+                    <a href="{{ url_for('login_page') }}">Login</a>
+                </button>                
+            </nav>
+            <div class="header-text">
+                <p>Electrical & Computer Enginner</p>
+                <h1>Hello, I'm <span>Theodoros</span><br>From Greece</h1>
+            </div>
+        </div>
+    </div>
+
+    <!-- About -->
+    <div id="about">
+        <div class="container">
+            <div class="row">
+                <div class="about-col-1">
+                    <img src="{{ url_for('static', filename='images/user.jpg') }}" alt="">
+                </div>
+                <div class="about-col-2">
+                    <h1 class="sub-title">About Me</h1>
+                    <p>I am an undergraduate engineering student with a passion for programming, particularly in embedded systems and machine learning. My focus extends to the exciting realms of artificial intelligencecomputer vision, and robotics. Eager to apply my skills and knowledge to contribute to innovative projects in these dynamic fields.</p>
+                    <div class="tab-titles">
+                        <p class="tab-links active-link" onclick="opentab('skills')">Skills</p>
+                        <p class="tab-links" onclick="opentab('experience')">Experience</p>
+                        <p class="tab-links" onclick="opentab('education')">Education</p>
+                    </div>
+                        <div class="tab-contents active-tab" id="skills">
+                        <!-- Skills Section -->
+                            <div id="skills-section">
+                                <ul id="skillsList"></ul>
+                                <div class="edit-btn" id="edit-skills" style="display: none;">
+                                    <button onclick="editSkills()">Edit Skills</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    <div class="tab-contents" id="experience">
+                        
+                    </div>
+
+                    <div class="tab-contents" id="education">
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Portfolio -->
+
+    <!-- Projects Section -->
+    <div id="portfolio">
+        <div class="container">
+            <h1 class="sub-title">My Projects</h1>
+            <div class="projects-list">
+                <!-- Dynamically loaded projects will appear here -->
+            </div>
+        </div>
+        <a href = "https://github.com/theodorostaloumtzis" target="_blank" class="btn">View More</a>
+    </div>
+        
+    <!-- Contact -->
+
+    <div id="contact">
+        <div class="container">
+            <div class="row">
+                <div class="contact-left">
+                    <h1 class="sub-title">Contact Me</h1>
+                    <p><img src="{{ url_for('static', filename='images/email1.svg') }}">taloumtzistheodoros@gmail.com</p>
+                    <p><img src="{{ url_for('static', filename='images/phone1.svg') }}"></i> +30-699-240-2818</p>
+                    <div class="social-icons">
+                        <a href="https://www.linkedin.com/in/theodoros-t-4ab893240/" target="_blank">
+                            <img src="{{ url_for('static', filename='images/linkedin1.svg') }}" alt="LinkedIn">
+                        </a>
+                        <a href="https://github.com/theodorostaloumtzis" target="_blank">
+                            <img src="{{ url_for('static', filename='images/github1.svg') }}" alt="GitHub">
+                        </a>
+                    </div>
+                    <a href="cv/resume.pdf" download class="btn btn2">Download CV</a>
+                </div>
+                <div class="contact-right">
+                    <form name="submit-to-google-sheet">
+                        <input type="text" name="Name" placeholder="Your Name" required>
+                        <input type="email" name="Email" placeholder="Your Email" required>
+                        <textarea name="Message" rows="6" placeholder="Your Message"></textarea>
+                        <button type="submit" class="btn btn2">Submit</button>
+                    </form>
+                </div>  
+            </div>
+        </div>
+        <div class="copyright">
+            <p>Copyright © Theodoros Taloumtzis</p>
+        </div>
+    </div>
+<script>
+    var tablinks = document.getElementsByClassName("tab-links");
+    var tabcontents = document.getElementsByClassName("tab-contents");
+    /**
+     * Handles the click event of a tab link, shows the associated tab content.
+     * @param {string} tabname The name of the tab to be shown.
+     */
+    function opentab(tabname) {
+        // Remove active class from all tab links
+        for (const tablink of tablinks) {
+            tablink.classList.remove("active-link");
+        }
+        // Remove active class from all tab contents
+        for (const tabcontent of tabcontents) {
+            tabcontent.classList.remove("active-tab");
+        }
+        // Add active class to the current tab link
+        event.currentTarget.classList.add("active-link");
+        // Add active class to the current tab content
+        document.getElementById(tabname).classList.add("active-tab");
+    }
+
+// Fetch and display skills
+/**
+ * Fetches and displays the skills from the server.
+ * This function retrieves the skills data from the server API endpoint,
+ * dynamically creates HTML elements for each skill, and appends them
+ * to the designated skills list in the DOM.
+ */
+async function loadSkills() {
+    // Fetch the skills data from the server
+    const response = await fetch('/api/content/skills');
+    const skills = await response.json();
+    // Get the container for the skills
+    const skillsList = document.getElementById('skillsList');
+    // Clear any existing content in the skills list
+    skillsList.innerHTML = '';
+    // Loop through each skill and create a new list item
+    skills.forEach(skill => {
+        const li = document.createElement('li');
+        // Construct the inner HTML for the list item
+        const innerHTML = `<strong>${skill.name}</strong> - ${skill.proficiency} <br>${skill.description}`;
+        li.innerHTML = innerHTML;
+        // Append the new list item to the skills list
+        skillsList.appendChild(li);
+    });
+}
+
+    /**
+     * Fetch and display projects from the server.
+     * This function retrieves project data from a specified API endpoint,
+     * dynamically creates HTML elements for each project, and appends them
+     * to the designated projects list in the DOM.
+     */
+    async function loadProjects() {
+        // Fetch project data from the API
+        const response = await fetch('/api/content/projects');
+        const projects = await response.json();
+
+        // Get the container for the projects
+        const projectsList = document.querySelector('.projects-list');
+        
+        // Clear any existing content in the projects list
+        projectsList.innerHTML = '';
+
+        // Iterate through each project and create its HTML representation
+        projects.forEach(project => {
+            const projectDiv = document.createElement('div');
+            projectDiv.classList.add('project');
+            projectDiv.innerHTML = `
+                <img src="${project.image}" alt="${project.title}">
+                <div class="layer">
+                    <h3>${project.title}</h3>
+                    <p>${project.description}</p>
+                    <a href="${project.github_link}" target="_blank">GitHub</a>
+                </div>`;
+            // Append the project element to the projects list
+            projectsList.appendChild(projectDiv);
+        });
+    }
+
+    /**
+     * Fetch and display education from the server.
+     * This function retrieves education data from a specified API endpoint,
+     * dynamically creates HTML elements for each education item, and appends them
+     * to the designated education list in the DOM.
+     */
+    async function loadEducation() {
+        // Fetch education data from the API
+        const response = await fetch('/api/content/education');
+        const education = await response.json();
+
+        // Get the container for the education list
+        const educationList = document.getElementById('education');
+        
+        // Clear any existing content in the education list
+        educationList.innerHTML = '';
+
+        // Iterate through each education item and create its HTML representation
+        education.forEach(edu => {
+            const li = document.createElement('li');
+            li.innerHTML = `<span>${edu.degree}</span> <br>${edu.institution} (${edu.duration})`;
+            // Append the education element to the education list
+            educationList.appendChild(li);
+        });
+    }
+
+    /**
+     * Fetch and display experience
+     * This function retrieves experience data from a specified API endpoint,
+     * dynamically creates HTML elements for each experience item, and appends them
+     * to the designated experience list in the DOM.
+     */
+    async function loadExperience() {
+        // Fetch experience data from the API
+        const response = await fetch('/api/content/experience');
+        const experience = await response.json();
+
+        // Get the container for the experience list
+        const experienceList = document.getElementById('experience');
+
+        // Clear any existing content in the experience list
+        experienceList.innerHTML = '';
+
+        // Iterate through each experience item and create its HTML representation
+        experience.forEach(exp => {
+            const li = document.createElement('li');
+            li.innerHTML = `<span>${exp.title}</span> <br>${exp.company} (${exp.duration}) <br>${exp.description}`;
+            // Append the experience element to the experience list
+            experienceList.appendChild(li);
+        });
+    }
+
+    /**
+     * Loads all data on page load.
+     * This function is called when the window loads. It fetches and displays
+     * skills, projects, education, and experience from the server.
+     */
+    window.onload = () => {
+        // Fetch and display skills
+        loadSkills();
+        // Fetch and display projects
+        loadProjects();
+        // Fetch and display education
+        loadEducation();
+        // Fetch and display experience
+        loadExperience();
+    };
+</script>
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxjPyK04lTJiVhJ3Q9PQI9oxXqCBW4JeIj4HD_fdqVfm3Q3PhPm6LMnklVskhM5S6u2dQ/exec'
+    const form = document.forms['submit-to-google-sheet']
+  
+    form.addEventListener('submit', e => {
+      e.preventDefault()
+      fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+        .then(response => console.log('Success!', response))
+        .catch(error => console.error('Error!', error.message))
+    })
+  </script>
+
+</body>
+</html>

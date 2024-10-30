@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style1.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        
+        <h2>Admin Dashboard</h2>
+
+        <!-- Add Project -->
+        <div>
+            <h3>Add Project</h3>
+            <form onsubmit="addProject(event)">
+                <input type="text" id="projectTitle" placeholder="Project Title" required />
+                <input type="text" id="projectImage" placeholder="Image URL" required />
+                <textarea id="projectDescription" placeholder="Description"></textarea>
+                <input type="text" id="projectGithub" placeholder="GitHub Link" required />
+                <button type="submit">Add Project</button>
+            </form>
+        </div>
+
+        <!-- Add Skill -->
+        <div>
+            <h3>Add Skill</h3>
+            <form onsubmit="addSkill(event)">
+                <input type="text" id="skillName" placeholder="Skill Name" required />
+                <input type="text" id="skillProficiency" placeholder="Proficiency" required />
+                <textarea id="skillDescription" placeholder="Description"></textarea>
+                <button type="submit">Add Skill</button>
+            </form>
+        </div>
+
+        <!-- Add Education -->
+        <div>
+            <h3>Add Education</h3>
+            <form onsubmit="addEducation(event)">
+                <input type="text" id="educationDegree" placeholder="Degree" required />
+                <input type="text" id="educationInstitution" placeholder="Institution" required />
+                <input type="text" id="educationDuration" placeholder="Duration" required />
+                <button type="submit">Add Education</button>
+            </form>
+        </div>
+
+        <!-- Add Experience -->
+        <div>
+            <h3>Add Experience</h3>
+            <form onsubmit="addExperience(event)">
+                <input type="text" id="experienceTitle" placeholder="Job Title" required />
+                <input type="text" id="experienceCompany" placeholder="Company" required />
+                <input type="text" id="experienceDuration" placeholder="Duration" required />
+                <textarea id="experienceDescription" placeholder="Description"></textarea>
+                <button type="submit">Add Experience</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
