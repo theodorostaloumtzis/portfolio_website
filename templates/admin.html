@@ -4,12 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
 </head>
 <body>
     <h1>Welcome to the Admin Dashboard</h1>
     <a href="{{ url_for('logout') }}" class="logout-button">Logout</a>
-
+<div>
+    <div class="form-container">
+    
     <!-- Add Skills Form -->
     <h2>Add Skill</h2>
     <form id="skillForm">
@@ -40,38 +42,49 @@
         <button type="button" onclick="addExperience()">Add Experience</button>
     </form>
 
+    <!-- Add Project Form -->
+    <h2>Add Project</h2>
+    <form id="projectForm" enctype="multipart/form-data">
+        <label for="projectTitle">Project Title:</label>
+        <input type="text" id="projectTitle" required>
+        <label for="projectStartDate">Start Date:</label>
+        <input type="text" id="projectStartDate" required>
+        <label for="projectEndDate">End Date:</label>
+        <input type="text" id="projectEndDate">
+        <label for="projectDescription">Description:</label>
+        <input type="text" id="projectDescription" required>
+        <label for="projectUrl">URL:</label>
+        <input type="text" id="projectUrl">
+        <label for="projectImage">Image:</label>
+        <input type="file" id="projectImage" accept="image/*">
+        <button type="button" onclick="addProject()">Add Project</button>
+    </form>
+    
+    </div>
+</div>
+
     <script>
-        async function addSkill() {
-            const title = document.getElementById('skillTitle').value;
-            const description = document.getElementById('skillDescription').value;
-            await fetch('/api/skills', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, description })
-            });
-            alert('Skill added successfully');
-        }
+        async function addProject() {
+            const title = document.getElementById('projectTitle').value;
+            const start_date = document.getElementById('projectStartDate').value;
+            const end_date = document.getElementById('projectEndDate').value;
+            const description = document.getElementById('projectDescription').value;
+            const url = document.getElementById('projectUrl').value;
+            const imageFile = document.getElementById('projectImage').files[0];
 
-        async function addEducation() {
-            const title = document.getElementById('educationTitle').value;
-            const institution = document.getElementById('institution').value;
-            await fetch('/api/education', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, institution })
-            });
-            alert('Education added successfully');
-        }
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('start_date', start_date);
+            formData.append('end_date', end_date);
+            formData.append('description', description);
+            formData.append('url', url);
+            formData.append('image', imageFile);
 
-        async function addExperience() {
-            const position = document.getElementById('position').value;
-            const company = document.getElementById('company').value;
-            await fetch('/api/experience', {
+            await fetch('/api/projects', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ position, company })
+                body: formData
             });
-            alert('Experience added successfully');
+            alert('Project added successfully');
         }
     </script>
 </body>

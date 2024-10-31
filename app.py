@@ -1,9 +1,16 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import pymongo
+import os
+from werkzeug.utils import secure_filename
+import logging
 
 # Initialize Flask app
 _api = Flask(__name__)
 _api.secret_key = 'your_secret_key'  # Needed for session management
+
+UPLOAD_FOLDER = 'static/uploads'
+_api.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 _user = 'admin'
 _password = 'admin'  # Replace with the password you used above
@@ -17,6 +24,10 @@ _collection = _db['mycollection']  # Use your actual collection name here
 # Admin credentials (for demonstration purposes only)
 ADMIN_USERNAME = 'admin'
 ADMIN_PASSWORD = '123'
+
+
+# Ensure the upload folder exists
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Home route - fetches Skills, Experience, Education data and passes it to index.html
 @_api.route('/')
@@ -92,6 +103,56 @@ def add_experience():
         )
         return jsonify({"message": "Experience added successfully"}), 201
     return jsonify({"error": "Unauthorized"}), 403
+
+logging.basicConfig(level=logging.DEBUG)
+# API endpoint to add project with image upload
+@_api.route('/api/projects', methods=['POST'])
+def add_project():
+    if 'logged_in' in session:
+        try:
+            title = request.form.get('title')
+            start_date = request.form.get('start_date')
+            end_date = request.form.get('end_date')
+            description = request.form.get('description')
+            url = request.form.get('url')
+            image_file = request.files.get('image')
+
+            image_path = None
+            if image_file and image_file.filename != '':
+                filename = secure_filename(image_file.filename)
+                image_path = os.path.join(_api.config['UPLOAD_FOLDER'], filename)
+                image_file.save(image_path)
+                # Convert to relative path for storage
+                image_path = f"{UPLOAD_FOLDER}/{filename}"
+                logging.debug(f"Image saved at: {image_path}")
+            else:
+                logging.debug("No image uploaded")
+
+            project_data = {
+                "title": title,
+                "start_date": start_date,
+                "end_date": end_date,
+                "description": description,
+                "url": url,
+                "image": image_path
+            }
+            logging.debug(f"Inserting project data into MongoDB: {project_data}")
+
+            result = _collection.update_one(
+                {"name": "projects"},
+                {"$push": {"data": project_data}},
+                upsert=True
+            )
+            logging.debug(f"MongoDB Update Result: {result.raw_result}")
+
+            return jsonify({"message": "Project added successfully"}), 201
+
+        except Exception as e:
+            logging.error(f"Error occurred: {e}")
+            return jsonify({"error": "Failed to add project"}), 500
+
+    return jsonify({"error": "Unauthorized"}), 403
+
 
 # Run the Flask application
 def main():
