@@ -47,22 +47,40 @@
                         <p class="tab-links" onclick="opentab('experience')">Experience</p>
                         <p class="tab-links" onclick="opentab('education')">Education</p>
                     </div>
-                        <div class="tab-contents active-tab" id="skills">
-                        <!-- Skills Section -->
-                            <div id="skills-section">
-                                <ul id="skillsList"></ul>
-                                <div class="edit-btn" id="edit-skills" style="display: none;">
-                                    <button onclick="editSkills()">Edit Skills</button>
-                                </div>
-                            </div>
-                        </div>
-
-                    <div class="tab-contents" id="experience">
-                        
+                        <!-- Skills Tab Content -->
+                    <div class="tab-contents active-tab" id="skills">
+                        <ul>
+                            {% for skill in skills %}
+                            <li>
+                                <span>{{ skill.title }}</span><br>
+                                {{ skill.description }}
+                            </li>
+                            {% endfor %}
+                        </ul>
                     </div>
 
+                    <!-- Experience Tab Content -->
+                    <div class="tab-contents" id="experience">
+                        <ul>
+                            {% for exp in experience %}
+                            <li>
+                                <span>{{ exp.position }}</span><br>
+                                {{ exp.company }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <!-- Education Tab Content -->
                     <div class="tab-contents" id="education">
-                        
+                        <ul>
+                            {% for edu in education %}
+                            <li>
+                                <span>{{ edu.title }}</span><br>
+                                {{ edu.institution }}
+                            </li>
+                            {% endfor %}
+                        </ul>
                     </div>
                 </div>
             </div>
