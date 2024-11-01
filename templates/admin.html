@@ -5,87 +5,102 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <script src="{{ url_for('static', filename='scripts/admin.js') }}"></script>
 </head>
 <body>
     <h1>Welcome to the Admin Dashboard</h1>
     <a href="{{ url_for('logout') }}" class="logout-button">Logout</a>
-<div>
-    <div class="form-container">
-    
-    <!-- Add Skills Form -->
-    <h2>Add Skill</h2>
-    <form id="skillForm">
-        <label for="skillTitle">Skill Title:</label>
-        <input type="text" id="skillTitle" required>
-        <label for="skillDescription">Description:</label>
-        <input type="text" id="skillDescription" required>
-        <button type="button" onclick="addSkill()">Add Skill</button>
-    </form>
 
-    <!-- Add Education Form -->
-    <h2>Add Education</h2>
-    <form id="educationForm">
-        <label for="educationTitle">Degree:</label>
-        <input type="text" id="educationTitle" required>
-        <label for="institution">Institution:</label>
-        <input type="text" id="institution" required>
-        <button type="button" onclick="addEducation()">Add Education</button>
-    </form>
+    <div class="dashboard-container">
+        <!-- Left Side: Forms for Adding Data -->
+        <div class="form-section">
+            <!-- Add Skill Form -->
+            <h2>Add Skill</h2>
+            <form id="skillForm">
+                <label for="skillTitle">Skill Title:</label>
+                <input type="text" id="skillTitle" required>
+                <label for="skillDescription">Description:</label>
+                <input type="text" id="skillDescription" required>
+                <button type="button" onclick="addSkill()">Add Skill</button>
+            </form>
 
-    <!-- Add Experience Form -->
-    <h2>Add Experience</h2>
-    <form id="experienceForm">
-        <label for="position">Position:</label>
-        <input type="text" id="position" required>
-        <label for="company">Company:</label>
-        <input type="text" id="company" required>
-        <button type="button" onclick="addExperience()">Add Experience</button>
-    </form>
+            <!-- Add Education Form -->
+            <h2>Add Education</h2>
+            <form id="educationForm">
+                <label for="educationTitle">Degree:</label>
+                <input type="text" id="educationTitle" required>
+                <label for="institution">Institution:</label>
+                <input type="text" id="institution" required>
+                <label for="startDate">Start Date:</label>
+                <input type="text" id="startDate" required>
+                <label for="endDate">End Date:</label>
+                <input type="text" id="endDate">
+                <label for="description">Description:</label>
+                <input type="text" id="description">
+                <label for="grade">Grade:</label>
+                <input type="text" id="grade">
+                <label for="thesis">Thesis:</label>
+                <input type="text" id="thesis">
 
-    <!-- Add Project Form -->
-    <h2>Add Project</h2>
-    <form id="projectForm" enctype="multipart/form-data">
-        <label for="projectTitle">Project Title:</label>
-        <input type="text" id="projectTitle" required>
-        <label for="projectStartDate">Start Date:</label>
-        <input type="text" id="projectStartDate" required>
-        <label for="projectEndDate">End Date:</label>
-        <input type="text" id="projectEndDate">
-        <label for="projectDescription">Description:</label>
-        <input type="text" id="projectDescription" required>
-        <label for="projectUrl">URL:</label>
-        <input type="text" id="projectUrl">
-        <label for="projectImage">Image:</label>
-        <input type="file" id="projectImage" accept="image/*">
-        <button type="button" onclick="addProject()">Add Project</button>
-    </form>
-    
+
+                <button type="button" onclick="addEducation()">Add Education</button>
+            </form>
+
+            <!-- Add Experience Form -->
+            <h2>Add Experience</h2>
+            <form id="experienceForm">
+                <label for="position">Position:</label>
+                <input type="text" id="position" required>
+                <label for="company">Company:</label>
+                <input type="text" id="company" required>
+                <label for="startDate">Start Date:</label>
+                <input type="text" id="startDate" required>
+                <label for="endDate">End Date:</label>
+                <input type="text" id="endDate">
+                <label for="description">Description:</label>
+                <input type="text" id="description" required>
+                <button type="button" onclick="addExperience()">Add Experience</button>
+            </form>
+
+            <!-- Add Project Form -->
+            <h2>Add Project</h2>
+            <form id="projectForm" enctype="multipart/form-data">
+                <label for="projectTitle">Project Title:</label>
+                <input type="text" id="projectTitle" required>
+                <label for="projectStartDate">Start Date:</label>
+                <input type="text" id="projectStartDate" required>
+                <label for="projectEndDate">End Date:</label>
+                <input type="text" id="projectEndDate">
+                <label for="projectDescription">Description:</label>
+                <input type="text" id="projectDescription" required>
+                <label for="projectUrl">URL:</label>
+                <input type="text" id="projectUrl">
+                <label for="projectImage">Image:</label>
+                <input type="file" id="projectImage" accept="image/*">
+                <button type="button" onclick="addProject()">Add Project</button>
+            </form>
+        </div>
+
+        <!-- Right Side: Navigation with List of Items -->
+        <div class="nav-section">
+            <h2>Skills</h2>
+            <div id="skillList" class="item-list"></div>
+
+            <h2>Education</h2>
+            <div id="educationList" class="item-list"></div>
+
+            <h2>Experience</h2>
+            <div id="experienceList" class="item-list"></div>
+
+            <h2>Projects</h2>
+            <div id="projectList" class="item-list">
+                <!-- Dynamically loaded projects will appear here -->
+
+            </div>
+        </div>
     </div>
-</div>
 
-    <script>
-        async function addProject() {
-            const title = document.getElementById('projectTitle').value;
-            const start_date = document.getElementById('projectStartDate').value;
-            const end_date = document.getElementById('projectEndDate').value;
-            const description = document.getElementById('projectDescription').value;
-            const url = document.getElementById('projectUrl').value;
-            const imageFile = document.getElementById('projectImage').files[0];
-
-            const formData = new FormData();
-            formData.append('title', title);
-            formData.append('start_date', start_date);
-            formData.append('end_date', end_date);
-            formData.append('description', description);
-            formData.append('url', url);
-            formData.append('image', imageFile);
-
-            await fetch('/api/projects', {
-                method: 'POST',
-                body: formData
-            });
-            alert('Project added successfully');
-        }
-    </script>
+    <!-- Link to external JavaScript file -->
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
 </body>
 </html>
