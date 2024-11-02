@@ -37,11 +37,17 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 # Home route - fetches Skills, Experience, Education data and passes it to index.html
 @_api.route('/')
 def home():
-    skills = _skills.find_one({"name": "skills"}).get('data', [])
-    education = _education.find_one({"name": "education"}).get('data', [])
-    experience = _experience.find_one({"name": "experience"}).get('data', [])
-    projects = _projects.find_one({"name": "projects"}).get('data', [])
+    skills = list(_skills.find({}))  # Fetch all skill documents
+    education = list(_education.find({}))  # Fetch all education documents
+    experience = list(_experience.find({}))  # Fetch all experience documents
+    projects = list(_projects.find({}))  # Fetch all project documents
+
+    # Convert ObjectId to string for JSON serialization
+    for item in skills + education + experience + projects:
+        item["_id"] = str(item["_id"])
+
     return render_template('index.html', skills=skills, education=education, experience=experience, projects=projects)
+
 
 # Login route
 @_api.route('/login', methods=['GET', 'POST'])
