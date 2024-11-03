@@ -1,34 +1,15 @@
 // Helper function to make requests
-async function makeRequest(url, method, body = null) {
+async function makeRequest(url, method, body = null, isFormData = false) {
     const options = {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: !isFormData ? { 'Content-Type': 'application/json' } : undefined,
+        body: isFormData ? body : JSON.stringify(body),
     };
-    if (body) {
-        options.body = JSON.stringify(body);
-    }
     const response = await fetch(url, options);
-    if (response.ok) {
-        return await response.json();
-    } else {
-        console.error('Request failed:', response.statusText);
-        return null;
-    }
+    return response.ok ? response.json() : null;
 }
 
 // Skill Functions
-async function addSkill() {
-    const skill = {
-        title: document.getElementById('skillTitle').value,
-        description: document.getElementById('skillDescription').value
-    };
-    const result = await makeRequest('/api/skills', 'POST', skill);
-    if (result) {
-        alert(result.message);
-        loadSkills();
-    }
-}
-
 async function loadSkills() {
     const response = await fetch('/api/skills');
     if (response.ok) {
@@ -37,7 +18,7 @@ async function loadSkills() {
         skillList.innerHTML = '';
         skills.forEach(skill => {
             skillList.innerHTML += `
-                <div class="item">
+                <div class="item" id="skill-${skill._id}">
                     <span>${skill.title}</span>
                     <div>
                         <button class="edit-button" onclick="editSkill('${skill._id}')">Edit</button>
@@ -50,16 +31,43 @@ async function loadSkills() {
     }
 }
 
+async function addSkill() {
+    const skill = {
+        title: document.getElementById('skillTitle').value,
+        description: document.getElementById('skillDescription').value
+    };
+    const result = await makeRequest('/api/skills', 'POST', skill);
+    if (result) {
+        alert(result.message);
+        loadSkills();
+    }
+}
+
 async function editSkill(id) {
-    const newTitle = prompt("Enter new title:");
-    const newDescription = prompt("Enter new description:");
-    if (newTitle && newDescription) {
-        const updatedSkill = { title: newTitle, description: newDescription };
-        const result = await makeRequest(`/api/skills/${id}`, 'PUT', updatedSkill);
-        if (result) {
-            alert("Skill updated successfully");
-            loadSkills();
-        }
+    const skill = await fetch(`/api/skills/${id}`).then(res => res.json());
+    const skillElement = document.getElementById(`skill-${id}`);
+    skillElement.innerHTML = `
+        <form id="editSkillForm">
+            <label for="editSkillTitle">Skill Title:</label>
+            <input type="text" id="editSkillTitle" value="${skill.title}" required>
+            <label for="editSkillDescription">Description:</label>
+            <input type="text" id="editSkillDescription" value="${skill.description}" required>
+            <button type="button" onclick="saveSkillChanges('${id}')">Save</button>
+            <button type="button" onclick="loadSkills()">Cancel</button>
+        </form>
+    `;
+}
+
+async function saveSkillChanges(id) {
+    const updatedSkill = {
+        title: document.getElementById('editSkillTitle').value,
+        description: document.getElementById('editSkillDescription').value
+    };
+    const result = await makeRequest(`/api/skills/${id}`, 'PUT', updatedSkill);
+    if (result) {
+        loadSkills();
+    } else {
+        alert('Error saving changes.');
     }
 }
 
@@ -75,23 +83,6 @@ async function deleteSkill(id) {
 }
 
 // Education Functions
-async function addEducation() {
-    const education = {
-        title: document.getElementById('educationTitle').value,
-        institution: document.getElementById('institution').value,
-        start_date: document.getElementById('startDate').value,
-        end_date: document.getElementById('endDate').value,
-        description: document.getElementById('description').value,
-        grade: document.getElementById('grade').value,
-        thesis_title: document.getElementById('thesis').value,
-    };
-    const result = await makeRequest('/api/education', 'POST', education);
-    if (result) {
-        alert(result.message);
-        loadEducation();
-    }
-}
-
 async function loadEducation() {
     const response = await fetch('/api/education');
     if (response.ok) {
@@ -100,7 +91,7 @@ async function loadEducation() {
         educationList.innerHTML = '';
         educationData.forEach(edu => {
             educationList.innerHTML += `
-                <div class="item">
+                <div class="item" id="education-${edu._id}">
                     <span>${edu.title} at ${edu.institution}</span>
                     <div>
                         <button class="edit-button" onclick="editEducation('${edu._id}')">Edit</button>
@@ -113,21 +104,67 @@ async function loadEducation() {
     }
 }
 
+async function addEducation() {
+    const education = {
+        title: document.getElementById('educationTitle').value,
+        institution: document.getElementById('educationInstitution').value,
+        start_date: document.getElementById('educationStartDate').value,
+        end_date: document.getElementById('educationEndDate').value,
+        description: document.getElementById('educationDescription').value,
+        grade: document.getElementById('educationGrade').value,
+        thesis_title: document.getElementById('educationThesis').value,
+    };
+    
+    console.log(education); // Debug: Log data to verify values
+    
+    const result = await makeRequest('/api/education', 'POST', education);
+    if (result) {
+        alert(result.message);
+        loadEducation();
+    }
+}
+
+
 async function editEducation(id) {
-    const newTitle = prompt("Enter new title:");
-    const newInstitution = prompt("Enter new institution:");
-    const newStartDate = prompt("Enter new start date:");
-    const newEndDate = prompt("Enter new end date:");
-    const newDescription = prompt("Enter new description:");
-    const newGrade = prompt("Enter new grade:");
-    const newThesis = prompt("Enter new thesis:");
-    if (newTitle && newInstitution) {
-        const updatedEducation = { title: newTitle, institution: newInstitution, start_date: newStartDate, end_date: newEndDate, description: newDescription, grade: newGrade, thesis_title: newThesis };
-        const result = await makeRequest(`/api/education/${id}`, 'PUT', updatedEducation);
-        if (result) {
-            alert("Education updated successfully");
-            loadEducation();
-        }
+    const education = await fetch(`/api/education/${id}`).then(res => res.json());
+    const educationElement = document.getElementById(`education-${id}`);
+    educationElement.innerHTML = `
+        <form id="editEducationForm">
+            <label for="editEducationTitle">Degree:</label>
+            <input type="text" id="editEducationTitle" value="${education.title}" required>
+            <label for="editInstitution">Institution:</label>
+            <input type="text" id="editInstitution" value="${education.institution}" required>
+            <label for="editStartDate">Start Date:</label>
+            <input type="text" id="editStartDate" value="${education.start_date}" required>
+            <label for="editEndDate">End Date:</label>
+            <input type="text" id="editEndDate" value="${education.end_date}">
+            <label for="editDescription">Description:</label>
+            <input type="text" id="editDescription" value="${education.description}">
+            <label for="editGrade">Grade:</label>
+            <input type="text" id="editGrade" value="${education.grade}">
+            <label for="editThesis">Thesis:</label>
+            <input type="text" id="editThesis" value="${education.thesis_title}">
+            <button type="button" onclick="saveEducationChanges('${id}')">Save</button>
+            <button type="button" onclick="loadEducation()">Cancel</button>
+        </form>
+    `;
+}
+
+async function saveEducationChanges(id) {
+    const updatedEducation = {
+        title: document.getElementById('editEducationTitle').value,
+        institution: document.getElementById('editInstitution').value,
+        start_date: document.getElementById('editStartDate').value,
+        end_date: document.getElementById('editEndDate').value,
+        description: document.getElementById('editDescription').value,
+        grade: document.getElementById('editGrade').value,
+        thesis_title: document.getElementById('editThesis').value
+    };
+    const result = await makeRequest(`/api/education/${id}`, 'PUT', updatedEducation);
+    if (result) {
+        loadEducation();
+    } else {
+        alert('Error saving changes.');
     }
 }
 
@@ -143,21 +180,6 @@ async function deleteEducation(id) {
 }
 
 // Experience Functions
-async function addExperience() {
-    const experience = {
-        position: document.getElementById('position').value,
-        company: document.getElementById('company').value,
-        start_date: document.getElementById('startDate').value,
-        end_date: document.getElementById('endDate').value,
-        description: document.getElementById('description').value,
-    };
-    const result = await makeRequest('/api/experience', 'POST', experience);
-    if (result) {
-        alert(result.message);
-        loadExperience();
-    }
-}
-
 async function loadExperience() {
     const response = await fetch('/api/experience');
     if (response.ok) {
@@ -166,7 +188,7 @@ async function loadExperience() {
         experienceList.innerHTML = '';
         experienceData.forEach(exp => {
             experienceList.innerHTML += `
-                <div class="item">
+                <div class="item" id="experience-${exp._id}">
                     <span>${exp.position} at ${exp.company}</span>
                     <div>
                         <button class="edit-button" onclick="editExperience('${exp._id}')">Edit</button>
@@ -179,19 +201,59 @@ async function loadExperience() {
     }
 }
 
+async function addExperience() {
+    const experience = {
+        position: document.getElementById('experiencePosition').value,
+        company: document.getElementById('experienceCompany').value,
+        start_date: document.getElementById('experienceStartDate').value,
+        end_date: document.getElementById('experienceEndDate').value,
+        description: document.getElementById('experienceDescription').value,
+    };
+    
+    console.log(experience); // Debug: Log data to verify values
+    
+    const result = await makeRequest('/api/experience', 'POST', experience);
+    if (result) {
+        alert(result.message);
+        loadExperience();
+    }
+}
+
+
 async function editExperience(id) {
-    const newPosition = prompt("Enter new position:");
-    const newCompany = prompt("Enter new company:");
-    const newStartDate = prompt("Enter new start date:");
-    const newEndDate = prompt("Enter new end date:");
-    const newDescription = prompt("Enter new description:");
-    if (newPosition && newCompany) {
-        const updatedExperience = { position: newPosition, company: newCompany, start_date: newStartDate, end_date: newEndDate, description: newDescription };
-        const result = await makeRequest(`/api/experience/${id}`, 'PUT', updatedExperience);
-        if (result) {
-            alert("Experience updated successfully");
-            loadExperience();
-        }
+    const experience = await fetch(`/api/experience/${id}`).then(res => res.json());
+    const experienceElement = document.getElementById(`experience-${id}`);
+    experienceElement.innerHTML = `
+        <form id="editExperienceForm">
+            <label for="editPosition">Position:</label>
+            <input type="text" id="editPosition" value="${experience.position}" required>
+            <label for="editCompany">Company:</label>
+            <input type="text" id="editCompany" value="${experience.company}" required>
+            <label for="editStartDate">Start Date:</label>
+            <input type="text" id="editStartDate" value="${experience.start_date}" required>
+            <label for="editEndDate">End Date:</label>
+            <input type="text" id="editEndDate" value="${experience.end_date}">
+            <label for="editDescription">Description:</label>
+            <input type="text" id="editDescription" value="${experience.description}" required>
+            <button type="button" onclick="saveExperienceChanges('${id}')">Save</button>
+            <button type="button" onclick="loadExperience()">Cancel</button>
+        </form>
+    `;
+}
+
+async function saveExperienceChanges(id) {
+    const updatedExperience = {
+        position: document.getElementById('editPosition').value,
+        company: document.getElementById('editCompany').value,
+        start_date: document.getElementById('editStartDate').value,
+        end_date: document.getElementById('editEndDate').value,
+        description: document.getElementById('editDescription').value
+    };
+    const result = await makeRequest(`/api/experience/${id}`, 'PUT', updatedExperience);
+    if (result) {
+        loadExperience();
+    } else {
+        alert('Error saving changes.');
     }
 }
 
@@ -206,7 +268,29 @@ async function deleteExperience(id) {
     }
 }
 
-// Project Functions
+// Load all projects
+async function loadProjects() {
+    const response = await fetch('/api/projects');
+    if (response.ok) {
+        const projects = await response.json();
+        const projectList = document.getElementById('projectList');
+        projectList.innerHTML = '';
+        projects.forEach(project => {
+            projectList.innerHTML += `
+                <div class="item" id="project-${project._id}">
+                    <span>${project.title}</span>
+                    <div>
+                        <button class="edit-button" onclick="editProject('${project._id}')">Edit</button>
+                        <button class="delete-button" onclick="deleteProject('${project._id}')">Delete</button>
+                    </div>
+                </div>`;
+        });
+    } else {
+        console.error("Failed to load projects");
+    }
+}
+
+// Add a new project
 async function addProject() {
     const title = document.getElementById('projectTitle').value;
     const start_date = document.getElementById('projectStartDate').value;
@@ -237,40 +321,53 @@ async function addProject() {
     }
 }
 
-async function loadProjects() {
-    const response = await fetch('/api/projects');
-    if (response.ok) {
-        const projects = await response.json();
-        const projectList = document.getElementById('projectList');
-        projectList.innerHTML = '';
-        projects.forEach(project => {
-            projectList.innerHTML += `
-                <div class="item">
-                    <span>${project.title}</span>
-                    <div>
-                        <button class="edit-button" onclick="editProject('${project._id}')">Edit</button>
-                        <button class="delete-button" onclick="deleteProject('${project._id}')">Delete</button>
-                    </div>
-                </div>`;
-        });
-    } else {
-        console.error("Failed to load projects");
-    }
+// Edit project function with image handling
+async function editProject(id) {
+    const project = await fetch(`/api/projects/${id}`).then(res => res.json());
+    const projectElement = document.getElementById(`project-${id}`);
+    projectElement.innerHTML = `
+        <form id="editProjectForm">
+            <label for="editProjectTitle">Project Title:</label>
+            <input type="text" id="editProjectTitle" value="${project.title}" required>
+            <label for="editStartDate">Start Date:</label>
+            <input type="text" id="editStartDate" value="${project.start_date}" required>
+            <label for="editEndDate">End Date:</label>
+            <input type="text" id="editEndDate" value="${project.end_date}">
+            <label for="editDescription">Description:</label>
+            <input type="text" id="editDescription" value="${project.description}" required>
+            <label for="editUrl">URL:</label>
+            <input type="text" id="editUrl" value="${project.url}">
+            <label for="editImage">Change Image (optional):</label>
+            <input type="file" id="editImage">
+            <button type="button" onclick="saveProjectChanges('${id}')">Save</button>
+            <button type="button" onclick="loadProjects()">Cancel</button>
+        </form>
+    `;
 }
 
-async function editProject(id) {
-    const newTitle = prompt("Enter new title:");
-    const newStartDate = prompt("Enter new start date:");
-    const newEndDate = prompt("Enter new end date:");
-    const newDescription = prompt("Enter new description:");
-    const newUrl = prompt("Enter new URL:");
-    if (newTitle) {
-        const updatedProject = { title: newTitle, start_date: newStartDate, end_date: newEndDate, description: newDescription, url: newUrl };
-        const result = await makeRequest(`/api/projects/${id}`, 'PUT', updatedProject);
-        if (result) {
-            alert("Project updated successfully");
-            loadProjects();
-        }
+// Save project changes, including optional image update
+async function saveProjectChanges(id) {
+    const formData = new FormData();
+    formData.append('title', document.getElementById('editProjectTitle').value);
+    formData.append('start_date', document.getElementById('editStartDate').value);
+    formData.append('end_date', document.getElementById('editEndDate').value);
+    formData.append('description', document.getElementById('editDescription').value);
+    formData.append('url', document.getElementById('editUrl').value);
+
+    const imageFile = document.getElementById('editImage').files[0];
+    if (imageFile) {
+        formData.append('image', imageFile);
+    }
+
+    const response = await fetch(`/api/projects/${id}`, {
+        method: 'PUT',
+        body: formData
+    });
+    if (response.ok) {
+        alert("Project updated successfully");
+        loadProjects();
+    } else {
+        alert("Error updating project");
     }
 }
 

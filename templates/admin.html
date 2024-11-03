@@ -14,7 +14,6 @@
     <div class="dashboard-container">
         <!-- Left Side: Forms for Adding Data -->
         <div class="form-section">
-            <!-- Add Skill Form -->
             <h2>Add Skill</h2>
             <form id="skillForm">
                 <label for="skillTitle">Skill Title:</label>
@@ -24,45 +23,53 @@
                 <button type="button" onclick="addSkill()">Add Skill</button>
             </form>
 
-            <!-- Add Education Form -->
             <h2>Add Education</h2>
             <form id="educationForm">
                 <label for="educationTitle">Degree:</label>
                 <input type="text" id="educationTitle" required>
-                <label for="institution">Institution:</label>
-                <input type="text" id="institution" required>
-                <label for="startDate">Start Date:</label>
-                <input type="text" id="startDate" required>
-                <label for="endDate">End Date:</label>
-                <input type="text" id="endDate">
-                <label for="description">Description:</label>
-                <input type="text" id="description">
-                <label for="grade">Grade:</label>
-                <input type="text" id="grade">
-                <label for="thesis">Thesis:</label>
-                <input type="text" id="thesis">
-
-
+                
+                <label for="educationInstitution">Institution:</label>
+                <input type="text" id="educationInstitution" required>
+                
+                <label for="educationStartDate">Start Date:</label>
+                <input type="text" id="educationStartDate" required>
+                
+                <label for="educationEndDate">End Date:</label>
+                <input type="text" id="educationEndDate">
+                
+                <label for="educationDescription">Description:</label>
+                <input type="text" id="educationDescription">
+                
+                <label for="educationGrade">Grade:</label>
+                <input type="text" id="educationGrade">
+                
+                <label for="educationThesis">Thesis:</label>
+                <input type="text" id="educationThesis">
+                
                 <button type="button" onclick="addEducation()">Add Education</button>
             </form>
 
-            <!-- Add Experience Form -->
             <h2>Add Experience</h2>
             <form id="experienceForm">
-                <label for="position">Position:</label>
-                <input type="text" id="position" required>
-                <label for="company">Company:</label>
-                <input type="text" id="company" required>
-                <label for="startDate">Start Date:</label>
-                <input type="text" id="startDate" required>
-                <label for="endDate">End Date:</label>
-                <input type="text" id="endDate">
-                <label for="description">Description:</label>
-                <input type="text" id="description" required>
+                <label for="experiencePosition">Position:</label>
+                <input type="text" id="experiencePosition" required>
+                
+                <label for="experienceCompany">Company:</label>
+                <input type="text" id="experienceCompany" required>
+                
+                <label for="experienceStartDate">Start Date:</label>
+                <input type="text" id="experienceStartDate" required>
+                
+                <label for="experienceEndDate">End Date:</label>
+                <input type="text" id="experienceEndDate">
+                
+                <label for="experienceDescription">Description:</label>
+                <input type="text" id="experienceDescription" required>
+                
                 <button type="button" onclick="addExperience()">Add Experience</button>
             </form>
 
-            <!-- Add Project Form -->
+
             <h2>Add Project</h2>
             <form id="projectForm" enctype="multipart/form-data">
                 <label for="projectTitle">Project Title:</label>
@@ -81,26 +88,26 @@
             </form>
         </div>
 
-        <!-- Right Side: Navigation with List of Items -->
+        <!-- Right Side: Navigation with List of Items and Edit Forms -->
         <div class="nav-section">
             <h2>Skills</h2>
             <div id="skillList" class="item-list"></div>
+            <div id="editSkillFormContainer" style="display: none;"></div>
 
             <h2>Education</h2>
             <div id="educationList" class="item-list"></div>
+            <div id="editEducationFormContainer" style="display: none;"></div>
 
             <h2>Experience</h2>
             <div id="experienceList" class="item-list"></div>
+            <div id="editExperienceFormContainer" style="display: none;"></div>
 
             <h2>Projects</h2>
-            <div id="projectList" class="item-list">
-                <!-- Dynamically loaded projects will appear here -->
-
-            </div>
+            <div id="projectList" class="item-list"></div>
+            <div id="editProjectFormContainer" style="display: none;"></div>
         </div>
     </div>
-
     <!-- Link to external JavaScript file -->
-    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts/admin.js') }}"></script>
 </body>
 </html>

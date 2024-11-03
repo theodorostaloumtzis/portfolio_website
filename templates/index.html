@@ -8,10 +8,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div id="header">
+    <header id="header">
         <div class="container">
             <nav>
-                <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo" alt="Logo">
                 <ul id="sidemenu">
                     <li><a href="#header">Home</a></li>
                     <li><a href="#about">About</a></li>
@@ -20,24 +20,20 @@
                     <i class="fa-solid fa-xmark" onclick="closemenu()"></i>
                 </ul>
                 <i class="fa-solid fa-bars" onclick="openmenu()"></i>
-                
-                <button class="login-btn">
-                    <a href="{{ url_for('login') }}">Login</a>
-                </button>                
+                <button class="login-btn"><a href="{{ url_for('login') }}">Login</a></button>
             </nav>
             <div class="header-text">
                 <p>Electrical & Computer Engineer</p>
                 <h1>Hello, I'm <span>Theodoros</span><br>From Greece</h1>
             </div>
         </div>
-    </div>
+    </header>
 
-    <!-- About Section -->
-    <div id="about">
+    <section id="about">
         <div class="container">
             <div class="row">
                 <div class="about-col-1">
-                    <img src="{{ url_for('static', filename='images/user.jpg') }}" alt="">
+                    <img src="{{ url_for('static', filename='images/user.jpg') }}" alt="User Image">
                 </div>
                 <div class="about-col-2">
                     <h1 class="sub-title">About Me</h1>
@@ -47,50 +43,38 @@
                         <p class="tab-links" onclick="opentab('experience')">Experience</p>
                         <p class="tab-links" onclick="opentab('education')">Education</p>
                     </div>
-
-                    <!-- Skills Tab Content -->
                     <div class="tab-contents active-tab" id="skills">
                         <ul id="skillsList"></ul>
                     </div>
-
-                    <!-- Experience Tab Content -->
                     <div class="tab-contents" id="experience">
                         <ul id="experienceList"></ul>
                     </div>
-
-                    <!-- Education Tab Content -->
                     <div class="tab-contents" id="education">
                         <ul id="educationList"></ul>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- Portfolio Section -->
-    <div id="portfolio">
+    <section id="portfolio">
         <div class="container">
             <h1 class="sub-title">My Projects</h1>
             <div class="projects-list"></div>
+            <a href="https://github.com/theodorostaloumtzis" target="_blank" class="btn">View More</a>
         </div>
-        <a href="https://github.com/theodorostaloumtzis" target="_blank" class="btn">View More</a>
-    </div>
-        
-    <!-- Contact Section -->
-    <div id="contact">
+    </section>
+
+    <section id="contact">
         <div class="container">
             <div class="row">
                 <div class="contact-left">
                     <h1 class="sub-title">Contact Me</h1>
-                    <p><img src="{{ url_for('static', filename='images/email1.svg') }}"> taloumtzistheodoros@gmail.com</p>
-                    <p><img src="{{ url_for('static', filename='images/phone1.svg') }}"> +30-699-240-2818</p>
+                    <p><img src="{{ url_for('static', filename='images/email1.svg') }}" alt="Email Icon"> taloumtzistheodoros@gmail.com</p>
+                    <p><img src="{{ url_for('static', filename='images/phone1.svg') }}" alt="Phone Icon"> +30-699-240-2818</p>
                     <div class="social-icons">
-                        <a href="https://www.linkedin.com/in/theodoros-t-4ab893240/" target="_blank">
-                            <img src="{{ url_for('static', filename='images/linkedin1.svg') }}" alt="LinkedIn">
-                        </a>
-                        <a href="https://github.com/theodorostaloumtzis" target="_blank">
-                            <img src="{{ url_for('static', filename='images/github1.svg') }}" alt="GitHub">
-                        </a>
+                        <a href="https://www.linkedin.com/in/theodoros-t-4ab893240/" target="_blank"><img src="{{ url_for('static', filename='images/linkedin1.svg') }}" alt="LinkedIn"></a>
+                        <a href="https://github.com/theodorostaloumtzis" target="_blank"><img src="{{ url_for('static', filename='images/github1.svg') }}" alt="GitHub"></a>
                     </div>
                     <a href="cv/resume.pdf" download class="btn btn2">Download CV</a>
                 </div>
@@ -107,9 +91,8 @@
         <div class="copyright">
             <p>Copyright © Theodoros Taloumtzis</p>
         </div>
-    </div>
+    </section>
 
-    <!-- Include External JavaScript Files -->
     <script src="{{ url_for('static', filename='scripts/main.js') }}"></script>
     <script src="{{ url_for('static', filename='scripts/contactForm.js') }}"></script>
 </body>

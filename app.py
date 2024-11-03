@@ -86,25 +86,46 @@ def add_skill():
         return jsonify({"message": "Skill added successfully"}), 201
     return jsonify({"error": "Unauthorized"}), 403
 
+from flask import request, jsonify, session
+from bson import ObjectId
+
 # Add Education
 @_api.route('/api/education', methods=['POST'])
 def add_education():
     if 'logged_in' in session:
         data = request.json
+        print("Received data:", data)  # Debugging: Print received data
+        
+        # Ensure _id is set for MongoDB
         data["_id"] = ObjectId()
-        _education.insert_one(data)
-        return jsonify({"message": "Education added successfully"}), 201
+
+        # Insert data into the education collection
+        result = _education.insert_one(data)
+        
+        if result.inserted_id:
+            return jsonify({"message": "Education added successfully"}), 201
+        else:
+            return jsonify({"error": "Failed to add education"}), 500
     return jsonify({"error": "Unauthorized"}), 403
+
 
 # Add Experience
 @_api.route('/api/experience', methods=['POST'])
 def add_experience():
     if 'logged_in' in session:
         data = request.json
+        print("Received data for experience:", data)  # Debugging: print received data
+
+        # Set ObjectId for MongoDB and insert the document
         data["_id"] = ObjectId()
-        _experience.insert_one(data)
-        return jsonify({"message": "Experience added successfully"}), 201
+        result = _experience.insert_one(data)
+        
+        if result.inserted_id:
+            return jsonify({"message": "Experience added successfully"}), 201
+        else:
+            return jsonify({"error": "Failed to add experience"}), 500
     return jsonify({"error": "Unauthorized"}), 403
+
 
 # Add Project (with optional image upload)
 @_api.route('/api/projects', methods=['POST'])
@@ -175,13 +196,22 @@ def get_projects():
 
 
 # Update a specific skill
+# Update a specific skill
 @_api.route('/api/skills/<id>', methods=['PUT'])
 def update_skill(id):
     if 'logged_in' in session:
-        data = request.json
-        _skills.update_one({"data._id": ObjectId(id)}, {"$set": {"data.$": data}})
-        return jsonify({"message": "Skill updated successfully"}), 200
+        data = request.json  # Get the updated data from the request
+        try:
+            object_id = ObjectId(id)  # Convert the ID to an ObjectId
+            result = _skills.update_one({"_id": object_id}, {"$set": data})  # Update the document with the provided data
+            if result.modified_count > 0:
+                return jsonify({"message": "Skill updated successfully"}), 200
+            else:
+                return jsonify({"message": "No changes made"}), 200
+        except InvalidId:
+            return jsonify({"error": "Invalid ID format"}), 400
     return jsonify({"error": "Unauthorized"}), 403
+
 
 # Delete a specific skill@_api.route('/api/skills/<id>', methods=['DELETE'])@_api.route('/api/skills/<id>', methods=['DELETE'])
 @_api.route('/api/skills/<id>', methods=['DELETE'])
@@ -200,14 +230,18 @@ def delete_skill(id):
 
 
 # Update Education
+# Update a specific education entry
 @_api.route('/api/education/<id>', methods=['PUT'])
 def update_education(id):
     if 'logged_in' in session:
         data = request.json
         try:
             object_id = ObjectId(id)
-            _education.update_one({"_id": object_id}, {"$set": data})
-            return jsonify({"message": "Education updated successfully"}), 200
+            result = _education.update_one({"_id": object_id}, {"$set": data})
+            if result.modified_count > 0:
+                return jsonify({"message": "Education updated successfully"}), 200
+            else:
+                return jsonify({"message": "No changes made"}), 200
         except InvalidId:
             return jsonify({"error": "Invalid ID format"}), 400
     return jsonify({"error": "Unauthorized"}), 403
@@ -227,15 +261,18 @@ def delete_education(id):
             return jsonify({"error": "Invalid ID format"}), 400
     return jsonify({"error": "Unauthorized"}), 403
 
-# Update Experience
+# Update a specific experience entry
 @_api.route('/api/experience/<id>', methods=['PUT'])
 def update_experience(id):
     if 'logged_in' in session:
         data = request.json
         try:
             object_id = ObjectId(id)
-            _experience.update_one({"_id": object_id}, {"$set": data})
-            return jsonify({"message": "Experience updated successfully"}), 200
+            result = _experience.update_one({"_id": object_id}, {"$set": data})
+            if result.modified_count > 0:
+                return jsonify({"message": "Experience updated successfully"}), 200
+            else:
+                return jsonify({"message": "No changes made"}), 200
         except InvalidId:
             return jsonify({"error": "Invalid ID format"}), 400
     return jsonify({"error": "Unauthorized"}), 403
@@ -255,15 +292,53 @@ def delete_experience(id):
             return jsonify({"error": "Invalid ID format"}), 400
     return jsonify({"error": "Unauthorized"}), 403
 
-# Update Project
+# Update project with optional image change and old image removal
 @_api.route('/api/projects/<id>', methods=['PUT'])
 def update_project(id):
     if 'logged_in' in session:
-        data = request.json
+        title = request.form.get('title')
+        start_date = request.form.get('start_date')
+        end_date = request.form.get('end_date')
+        description = request.form.get('description')
+        url = request.form.get('url')
+        image_file = request.files.get('image')
+
+        # Prepare data to update
+        update_data = {
+            "title": title,
+            "start_date": start_date,
+            "end_date": end_date,
+            "description": description,
+            "url": url,
+        }
+
         try:
             object_id = ObjectId(id)
-            _projects.update_one({"_id": object_id}, {"$set": data})
-            return jsonify({"message": "Project updated successfully"}), 200
+
+            # Retrieve the current project document to check for an existing image
+            current_project = _projects.find_one({"_id": object_id})
+            if not current_project:
+                return jsonify({"error": "Project not found"}), 404
+
+            # Handle image update if a new image file is uploaded
+            if image_file and image_file.filename != '':
+                # Remove the old image file if it exists
+                old_image_path = current_project.get("image")
+                if old_image_path and os.path.exists(old_image_path):
+                    os.remove(old_image_path)
+
+                # Save the new image
+                filename = secure_filename(image_file.filename)
+                image_path = os.path.join(_api.config['UPLOAD_FOLDER'], filename)
+                image_file.save(image_path)
+                update_data["image"] = f"{UPLOAD_FOLDER}/{filename}"
+
+            # Update the project document in the database
+            result = _projects.update_one({"_id": object_id}, {"$set": update_data})
+            if result.modified_count > 0:
+                return jsonify({"message": "Project updated successfully"}), 200
+            else:
+                return jsonify({"message": "No changes made"}), 200
         except InvalidId:
             return jsonify({"error": "Invalid ID format"}), 400
     return jsonify({"error": "Unauthorized"}), 403
@@ -277,6 +352,67 @@ def delete_project(id):
             result = _projects.delete_one({"_id": object_id})
             if result.deleted_count > 0:
                 return jsonify({"message": "Project deleted successfully"}), 200
+            else:
+                return jsonify({"error": "Project not found"}), 404
+        except InvalidId:
+            return jsonify({"error": "Invalid ID format"}), 400
+    return jsonify({"error": "Unauthorized"}), 403
+
+
+# Retrieve a specific skill by ID
+@_api.route('/api/skills/<id>', methods=['GET'])
+def get_single_skill(id):
+    if 'logged_in' in session:
+        try:
+            skill = _skills.find_one({"_id": ObjectId(id)})
+            if skill:
+                skill["_id"] = str(skill["_id"])
+                return jsonify(skill), 200
+            else:
+                return jsonify({"error": "Skill not found"}), 404
+        except InvalidId:
+            return jsonify({"error": "Invalid ID format"}), 400
+    return jsonify({"error": "Unauthorized"}), 403
+
+# Retrieve a specific education by ID
+@_api.route('/api/education/<id>', methods=['GET'])
+def get_single_education(id):
+    if 'logged_in' in session:
+        try:
+            education = _education.find_one({"_id": ObjectId(id)})
+            if education:
+                education["_id"] = str(education["_id"])
+                return jsonify(education), 200
+            else:
+                return jsonify({"error": "Education not found"}), 404
+        except InvalidId:
+            return jsonify({"error": "Invalid ID format"}), 400
+    return jsonify({"error": "Unauthorized"}), 403
+
+# Retrieve a specific experience by ID
+@_api.route('/api/experience/<id>', methods=['GET'])
+def get_single_experience(id):
+    if 'logged_in' in session:
+        try:
+            experience = _experience.find_one({"_id": ObjectId(id)})
+            if experience:
+                experience["_id"] = str(experience["_id"])
+                return jsonify(experience), 200
+            else:
+                return jsonify({"error": "Experience not found"}), 404
+        except InvalidId:
+            return jsonify({"error": "Invalid ID format"}), 400
+    return jsonify({"error": "Unauthorized"}), 403
+
+# Retrieve a specific project by ID
+@_api.route('/api/projects/<id>', methods=['GET'])
+def get_single_project(id):
+    if 'logged_in' in session:
+        try:
+            project = _projects.find_one({"_id": ObjectId(id)})
+            if project:
+                project["_id"] = str(project["_id"])
+                return jsonify(project), 200
             else:
                 return jsonify({"error": "Project not found"}), 404
         except InvalidId:
