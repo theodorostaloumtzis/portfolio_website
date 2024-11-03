@@ -1,0 +1,12 @@
+[{
+  "_id": {
+    "$oid": "6727d4cc4a3daea0a907a706"
+  },
+  "title": "ECE",
+  "institution": "UoWM",
+  "start_date": "2019",
+  "end_date": "2025",
+  "description": "Test",
+  "grade": "7.3",
+  "thesis_title": "ai acceleration"
+}]
